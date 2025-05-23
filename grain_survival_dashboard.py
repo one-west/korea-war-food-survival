@@ -2,42 +2,84 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from data import reduced_survival_days, survival_days
 
-# 기본 데이터 (정상 문자열로 수정)
-survival_days_normal = reduced_survival_days
-survival_days_wartime = survival_days
+# 기본 데이터
+survival_days_normal = survival_days  # 평시
+survival_days_wartime = reduced_survival_days  # 전시 (30% 절감)
 
-st.title("한반도 전면전 발생 시 곡물 생존 가능 일수 분석")
+# 한글 폰트 설정
+plt.rcParams["font.family"] = "Malgun Gothic"
+plt.rcParams["axes.unicode_minus"] = False
 
-st.markdown(
-    """
-이 대시보드는 2022년 농림축산식품부 자급률 통계를 기반으로, 무역이 완전히 차단된 전면전 상황에서 
-한국이 각 곡물로 며칠이나 버틸 수 있는지를 계산한 결과입니다.
+# 타이틀 및 소개
+st.title("🇰🇷 한반도 전면전 발생 시 곡물 생존 가능 일수 분석")
 
-- **평시 소비량 기준**: 일반적인 1인당 소비량 기준 (FAO/KOSIS)
-- **전시 소비량 기준**: 소비량 30% 감축 가정
-"""
-)
+st.markdown("""
+### 📘 프로젝트 개요
+이 분석은 한반도에서 전면전이 발생했을 경우, 주요 곡물 자급률과 정부 비축량만으로 **국민이 얼마나 생존할 수 있는지를 시뮬레이션**합니다.
 
-
-# 그래프 표시 함수
-def plot_bar(data, title):
-    fig, ax = plt.subplots()
-    ax.bar(data.keys(), data.values(), color="skyblue")
-    ax.set_ylabel("생존 가능 일수 (일)")
-    ax.set_title(title)
-    st.pyplot(fig)
-
-
-# 두 개의 컬럼으로 시각화
-col1, col2 = st.columns(2)
-
-with col1:
-    st.subheader("평시 소비량 기준")
-    plot_bar(survival_days_normal, "평시 기준 생존 가능 일수")
-
-with col2:
-    st.subheader("전시 소비량 기준")
-    plot_bar(survival_days_wartime, "전시 기준 생존 가능 일수")
+- 📅 기준 연도: **2022년**
+- 📊 출처: 농림축산식품부, KOSIS, FAO
+- 🎯 분석 대상: 쌀, 밀, 콩, 옥수수
+""")
 
 st.markdown("---")
-st.markdown("데이터 출처: 농림축산식품부 자급률 통계, KOSIS, FAO")
+
+# 수평 이중 막대 그래프
+def plot_combined_bar(normal, wartime):
+    labels = list(normal.keys())
+    x = range(len(labels))
+
+    normal_values = list(normal.values())
+    wartime_values = list(wartime.values())
+
+    bar_height = 0.35
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.barh([i + bar_height for i in x], normal_values, height=bar_height, label="평시", color="skyblue")
+    ax.barh(x, wartime_values, height=bar_height, label="전시", color="salmon")
+
+    ax.set_xlabel("생존 가능 일수 (일)")
+    ax.set_yticks([i + bar_height / 2 for i in x])
+    ax.set_yticklabels(labels)
+    ax.set_title("✅ 곡물별 생존 가능 일수 비교")
+    ax.legend()
+    ax.grid(True, axis="x", linestyle="--", alpha=0.5)
+    plt.tight_layout()
+    st.pyplot(fig)
+
+# 원형 그래프 비교
+def plot_pie_comparison(normal, wartime):
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+
+    axes[0].pie(normal.values(), labels=normal.keys(), autopct="%1.1f%%", startangle=140)
+    axes[0].set_title("🌾 평시 기준 비중")
+
+    axes[1].pie(wartime.values(), labels=wartime.keys(), autopct="%1.1f%%", startangle=140)
+    axes[1].set_title("⚠️ 전시 기준 비중")
+
+    plt.suptitle("📊 곡물별 비중 비교 (Pie Chart)")
+    plt.tight_layout()
+    st.pyplot(fig)
+
+# ------------------------
+# 시각화 영역
+# ------------------------
+
+st.subheader("📊 곡물 생존 가능 일수 비교 (막대 그래프)")
+plot_combined_bar(survival_days_normal, survival_days_wartime)
+
+st.subheader("🥧 곡물별 비중 비교 (원형 그래프)")
+plot_pie_comparison(survival_days_normal, survival_days_wartime)
+
+st.markdown("---")
+st.markdown("""
+### 📌 분석 요약
+- ✅ **쌀은 1년 이상 생존 가능** (자급률 100% 이상 + 비축량)
+- ⚠️ **옥수수, 밀은 수입 의존 심각** → 1달 내 고갈
+- 🔄 전시 상황에서는 **소비량 절감 시 최대 생존일 증가**
+
+### 📂 데이터 출처
+- 농림축산식품부 자급률 통계 (2022)
+- 통계청 KOSIS
+- FAO Food Balance Sheet
+""")
