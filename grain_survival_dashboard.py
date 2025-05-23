@@ -11,7 +11,7 @@ plt.rcParams["font.family"] = "Malgun Gothic"
 plt.rcParams["axes.unicode_minus"] = False
 
 # 타이틀 및 소개
-st.title("🇰🇷 한반도 전면전 발생 시 곡물 생존 가능 일수 분석")
+st.title("남북한 전면전 발생 시 곡물 생존 가능 일수 분석")
 
 st.markdown("""
 ### 📘 프로젝트 개요
