@@ -8,7 +8,7 @@ import requests
 def set_korean_font():
     font_path = "/tmp/NanumGothic.ttf"
     if not os.path.exists(font_path):
-        url = "https://github.com/naver/nanumfont/blob/master/ttf/NanumGothic.ttf?raw=true"
+        url = "https://github.com/naver/nanumfont/raw/master/ttf/NanumGothic.ttf"
         r = requests.get(url)
         with open(font_path, "wb") as f:
             f.write(r.content)
