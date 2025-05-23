@@ -1,5 +1,6 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+from startup_font import set_korean_font
 from data import reduced_survival_days, survival_days
 
 # 기본 데이터
@@ -7,8 +8,7 @@ survival_days_normal = survival_days  # 평시
 survival_days_wartime = reduced_survival_days  # 전시 (30% 절감)
 
 # 한글 폰트 설정
-plt.rcParams["font.family"] = "Malgun Gothic"
-plt.rcParams["axes.unicode_minus"] = False
+set_korean_font()
 
 # 타이틀 및 소개
 st.title("남북한 전면전 발생 시 곡물 생존 가능 일수 분석")
